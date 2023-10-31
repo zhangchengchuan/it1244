@@ -1,7 +1,6 @@
 import sys
 import time
 import argparse
-import librosa
 import numpy as np
 import matplotlib.pyplot as plt
 import glob

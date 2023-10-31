@@ -1,7 +1,6 @@
 import sys
 import time
 import argparse
-import librosa
 import numpy as np
 import matplotlib.pyplot as plt
 import glob
@@ -11,6 +10,9 @@ import torch.optim as optim
 import torch.nn.functional as F
 import torchaudio
 import torchaudio.transforms as T
+
+# Metrics
+import torchmetrics
 
 # Model
 from models import CNN
@@ -30,10 +32,19 @@ def test(args):
         model = CNN(n_fft=hp['n_fft'], hop=hp['hop_length'])
         model.load_state_dict(loaded_state_dict)
     
+    # Class Labels
     labels = {
         0: "Cat",
         1: "Dog"
     }
+
+    # Intialize Metrics
+    accuracy = torchmetrics.Accuracy()
+    precision = torchmetrics.Precision(num_classes=2, average='macro')
+    recall = torchmetrics.Recall(num_classes=2, average='macro')
+    f1 = torchmetrics.F1(num_classes=2, average='macro')
+    confmat = torchmetrics.ConfusionMatrix(num_classes=2)
+
     model.eval()
     with torch.no_grad():
         correct = 0
@@ -55,7 +66,18 @@ def test(args):
                 correct += 1
             print(f"Prediction: {labels[torch.argmax(prediction,dim=1).item()]}, Actual: {labels[classification]}")
 
+    # Accuracy
     print(f"Total accuracy: {correct/len(test_dataframe)}")
+
+    # Precision
+
+    # Recall
+
+    # F1
+
+    # F2
+
+    # Confusion matrix
             
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='Description of your script')
