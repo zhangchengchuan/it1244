@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch
 import torch.functional as F
 import torch.optim as optim
-import librosa
 
 # Baseline MLP
 class MLP(nn.Module):
