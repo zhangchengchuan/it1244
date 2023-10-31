@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import numpy as np
@@ -19,7 +20,7 @@ import pandas as pd
 from models import CNN
 
 def get_train_dataframe(directory):
-    files = sorted(glob.glob(directory+'/*'))
+    files = sorted(glob.glob(os.path.join(directory,'*')))
     df = pd.DataFrame(columns=['idx', 'audio_file', 'classification'])
     for idx, audio_file in enumerate(files):
         audio_path = audio_file.split('/')[-1]
@@ -30,7 +31,7 @@ def get_train_dataframe(directory):
     return df
 
 def get_test_dataframe(directory):
-    files = sorted(glob.glob(directory+'/*'))
+    files = sorted(glob.glob(os.path.join(directory,'*')))
     df = pd.DataFrame(columns=['idx', 'audio_file', 'classification'])
     for idx, audio_file in enumerate(files):
         audio_path = audio_file.split('/')[-1]
