@@ -45,31 +45,21 @@ def get_test_dataframe(directory):
 
     return df
 
-def get_hyperparameters(path):
+def get_hyperparameters(args):
     try:
-        with open(path, 'r') as file:
-            hp= {}
-            exec(file.read(), hp)
-
-            hp_dict = {}
-            hp_dict['learning_rate'] = hp.get('lr')
-            hp_dict['target_length'] = hp.get('target_length')
-            hp_dict['n_fft'] = hp.get('n_fft')
-            hp_dict['hop_length'] = hp.get('hop')
-            hp_dict['epochs'] = hp.get('epochs')
-            hp_dict['batch_size'] = hp.get('batch_size')
-            hp_dict['kfold_splits'] = hp.get('n_splits')
-
-            return hp_dict
-    except:
-        print("Error reading hyperparameters")
+        print("Fetching Hyperparameters:\n")
+        hp_dict = {}
+        hp_dict['learning_rate'] = float(args.learning_rate)
+        hp_dict['dropout'] = float(args.dropout)
+        hp_dict['batch_size'] = int(args.batch_size)
+        # print(type(hp_dict['batch_size']), type(hp_dict['dropout']), type(hp_dict['learning_rate']))
+        return hp_dict
+    except Exception as e:
+        print(f"Error reading hyperparameters: {e}")
 
 class CatsAndDogsDataset(Dataset):
-    def __init__(self, target_length, n_fft, hop, dataframe):
+    def __init__(self, dataframe):
         self.df = dataframe
-        self.n_fft = n_fft
-        self.hop = hop
-        self.target_length = target_length
  
     def __getitem__(self, index):
         audio_path = self.df.iloc[index]['audio_file']
@@ -83,13 +73,13 @@ class CatsAndDogsDataset(Dataset):
     
     def _process_signal(self, signal):
         # Right pad the audio files that are shorter than target, cut if longer.
-        if len(signal) > self.target_length:
+        if len(signal) > 200000:
             print(signal.shape)
-            signal = signal[:, :self.target_length]
+            signal = signal[:, :200000]
             print(signal.shape)
-        elif len(signal) < self.target_length:
-            signal = F.pad(signal, [0, self.target_length-signal.shape[1]])
+        elif len(signal) < 200000:
+            signal = F.pad(signal, [0, 200000-signal.shape[1]])
             
-        spectrogram = T.Spectrogram(n_fft=self.n_fft, hop_length=self.hop)(signal)
+        spectrogram = T.Spectrogram(n_fft=2048, hop_length=1024)(signal)
         return spectrogram
 

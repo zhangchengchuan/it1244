@@ -12,4 +12,6 @@ venv/
 .ipynb_checkpoints/
 
 # Entire dataset
-IT1244-Project/Dataset/
+# IT1244-Project/Dataset/
+
+models/
