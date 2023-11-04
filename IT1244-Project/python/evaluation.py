@@ -17,6 +17,7 @@ from sklearn.metrics import average_precision_score
 from models import CNN, MLP, LSTM
 from utils import CatsAndDogsDataset, get_hyperparameters, get_test_dataframe
 
+
 def test(args):
     model_folder_location = args.folder_location
     hp = get_hyperparameters(args)

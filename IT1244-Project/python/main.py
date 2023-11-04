@@ -28,6 +28,7 @@ torch.manual_seed(0)
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="torch.nn.modules.module", lineno=1518)
 
+
 def train(args):
     start = time.time()
     print("Training Started.")
@@ -54,6 +55,7 @@ def train(args):
     else:
         raise Exception(f"No such model type found: {args.type}")
 
+    # Loss function and optimizer
     loss_fn = nn.CrossEntropyLoss().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=hp['learning_rate'])
 
@@ -62,8 +64,10 @@ def train(args):
     EPOCHS = 20
     kf = KFold(n_splits=KFOLD_SPLITS, shuffle=True, random_state=10)
     all_losses = []
+    # Loop over each fold and train
     for fold, (train_idx, val_idx) in enumerate(kf.split(train_dataset.df)):
         print(f"Fold: {fold}")
+        # Create dataloaders for each fold, the training subset and the validation subset
         train_subset = Subset(train_dataset, train_idx)
         train_loader = DataLoader(train_subset, batch_size=hp['batch_size'], shuffle=True)
         validation_subset = Subset(train_dataset, val_idx)
@@ -72,6 +76,7 @@ def train(args):
         # Training loop for this fold
         train_losses = []
         val_losses = []
+        # For each epoch, train and validate
         for epoch in range(EPOCHS):
             cur_training_loss=0
             model.train()
@@ -142,3 +147,4 @@ if __name__ == "__main__":
     parser.add_argument('-do','--dropout', type=str, default='0.4')
     args = parser.parse_args()
     train(args)
+    
