@@ -19,6 +19,12 @@ from utils import CatsAndDogsDataset, get_hyperparameters, get_test_dataframe
 
 
 def test(args):
+    """
+    This function is used to test the model on the test data, and calculate the metrics, such as F1, F2,
+    Average Precision, etc., and save them to a file.
+    :param args: Command line arguments
+    :return: None
+    """
     model_folder_location = args.folder_location
     hp = get_hyperparameters(args)
     label = f'{args.type}_lr-{args.learning_rate}_bs-{args.batch_size}_do-{args.dropout}'
@@ -34,18 +40,18 @@ def test(args):
 
     # Load the model
     model = None
-    if args.type== 'cnn':
+    if args.type == 'cnn':
         model = CNN(dropout=hp['dropout'])
         model.load_state_dict(loaded_state_dict)
-    elif args.type=='base':
+    elif args.type == 'base':
         model = MLP(dropout=hp['dropout'])
         model.load_state_dict(loaded_state_dict)
-    elif args.type=='lstm':
+    elif args.type == 'lstm':
         model = LSTM(dropout=hp['dropout'])
         model.load_state_dict(loaded_state_dict)
     else:
         raise Exception(f"No such model type found: {args.type}")
-    
+
     model.eval()
     with torch.no_grad():
         all_preds = []
@@ -87,9 +93,8 @@ def test(args):
     AP = average_precision_score(all_labels, all_preds)
     print("Average Precision (AP):", AP)
 
-
     # Save the metrics to a file
-    with open(os.path.join(model_folder_location,f'{label}.txt'), 'w') as file:
+    with open(os.path.join(model_folder_location, f'{label}.txt'), 'w') as file:
         file.write(f"TP: {TP}\n")
         file.write(f"TN: {TN}\n")
         file.write(f"FP: {FP}\n")
@@ -98,14 +103,16 @@ def test(args):
         file.write(f"F2 Score: {f2.item()}\n")
         file.write(f"Mean Average Precision (MAP): {AP}\n")
 
-            
-if __name__=="__main__":
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Description of your script')
-    parser.add_argument('-t','--type', type=str, help='Type of model', default='base')
-    parser.add_argument('-d','--test_data', type=str, help='Location of test data', default='./Dataset/Audio Dataset/Cats and Dogs/test_data')
-    parser.add_argument('-l', '--folder_location', type=str, help='Location of folder that has the model hyperparameters', default='./models/')
-    parser.add_argument('-lr','--learning_rate', type=str, default='0.01')
-    parser.add_argument('-bs','--batch_size', type=str, default='128')
-    parser.add_argument('-do','--dropout', type=str, default='0.4')
+    parser.add_argument('-t', '--type', type=str, help='Type of model', default='base')
+    parser.add_argument('-d', '--test_data', type=str, help='Location of test data',
+                        default='./Dataset/Audio Dataset/Cats and Dogs/test_data')
+    parser.add_argument('-l', '--folder_location', type=str,
+                        help='Location of folder that has the model hyperparameters', default='./models/')
+    parser.add_argument('-lr', '--learning_rate', type=str, default='0.01')
+    parser.add_argument('-bs', '--batch_size', type=str, default='128')
+    parser.add_argument('-do', '--dropout', type=str, default='0.4')
     args = parser.parse_args()
     test(args)
