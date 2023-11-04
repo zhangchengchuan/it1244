@@ -11,48 +11,42 @@ def init_weights(layer):
     if isinstance(layer, nn.Conv2d):
         init.xavier_normal_(layer.weight)
 
-
 # Baseline Multi-layer Perceptron (MLP)
 class MLP(nn.Module):
-    """Baseline MLP model. We use LeakyReLU activation function and dropout to prevent over-fitting."""
-
     def __init__(self, dropout=0.2):
         super(MLP, self).__init__()
         self.flatten = nn.Flatten()
         self.fc1 = nn.Sequential(
-            nn.Linear(200900, 2048),
+            nn.Linear(200900, 256),
             nn.LeakyReLU(),
             nn.Dropout(dropout)
         )
         self.fc1.apply(init_weights)
 
         self.fc2 = nn.Sequential(
-            nn.Linear(2048, 1024),
+            nn.Linear(256, 128),
             nn.LeakyReLU(),
             nn.Dropout(dropout)
         )
         self.fc2.apply(init_weights)
 
         self.fc3 = nn.Sequential(
-            nn.Linear(1024, 2),
+            nn.Linear(128, 2),
         )
         self.fc3.apply(init_weights)
-
-    """Forward pass"""
 
     def forward(self, x):
         # We flatten the input to a vector before passing it through the fully connected layers
         x = self.flatten(x)
         x = self.fc1(x)
         x = self.fc2(x)
+        # No need for softmax due to loss_fn = cross_entropy_loss
         logits = self.fc3(x)
         return logits
 
 
-# Baseline CNN
+# Convolutional Neural Network CNN model: 4 ConvLayers followed by fully connected NN.
 class CNN(nn.Module):
-    """Convolutional Neural Network CNN model. We use LeakyReLU activation function and dropout to
-    prevent over-fitting."""
 
     def __init__(self, dropout=0.2):
         super(CNN, self).__init__()
@@ -82,7 +76,6 @@ class CNN(nn.Module):
             nn.MaxPool2d(kernel_size=2),
         )
         self.conv1.apply(init_weights)
-
         self.conv2 = nn.Sequential(
             nn.Conv2d(
                 in_channels=16,
@@ -97,7 +90,6 @@ class CNN(nn.Module):
             nn.MaxPool2d(kernel_size=2),
         )
         self.conv2.apply(init_weights)
-
         self.conv3 = nn.Sequential(
             nn.Conv2d(
                 in_channels=32,
@@ -112,7 +104,6 @@ class CNN(nn.Module):
             nn.MaxPool2d(kernel_size=2),
         )
         self.conv3.apply(init_weights)
-
         self.conv4 = nn.Sequential(
             nn.Conv2d(
                 in_channels=64,
@@ -127,27 +118,27 @@ class CNN(nn.Module):
             nn.MaxPool2d(kernel_size=2),
         )
         self.conv4.apply(init_weights)
-
         self.flatten = nn.Flatten()
         self.linear = nn.Linear(116480, 2)
-
-    """Forward pass"""
 
     def forward(self, input):
         x = self.conv1(input)
         x = self.conv2(x)
         x = self.conv3(x)
         x = self.conv4(x)
+        # Finished dimension reduction after conv layers. Flatten and pass to FC layers.
         x = self.flatten(x)
+
+        # No need for softmax due to loss_fn = cross_entropy_loss
         logits = self.linear(x)
         return logits
 
 
 class LSTM(nn.Module):
     """
-    LSTM stands for Long Short-Term Memory. It is a type of recurrent neural network (RNN). RNNs are used for sequential
+    LSTM is a type of recurrent neural network (RNN). RNNs are used for sequential
     data, such as time series data. In our case, we use it for audio data. The input to the LSTM is a sequence of audio
-    frames. The output is a sequence of hidden states. The hidden states are then passed to a fully connected layer to
+    frames from the spectrogram (flattened). The output is a sequence of hidden states. The hidden states are then passed to a fully connected layer to
     produce the final output.
 
     What is good about this model is that it is better than traditional RNNs at capturing long-term dependencies.
@@ -162,7 +153,7 @@ class LSTM(nn.Module):
         self.flatten1 = nn.Flatten()
         self.lstm = nn.LSTM(
             input_size=1025,
-            hidden_size=256,
+            hidden_size=256, # number of hidden states
             batch_first=True,
             num_layers=2,
             dropout=dropout,
@@ -172,21 +163,13 @@ class LSTM(nn.Module):
         self.fc = nn.Linear(2 * 256, 2)
 
     def forward(self, x):
-        # Expecting input of shape (batch, seq_len, features), where
-        # seq_len is the number of time steps and features is the number of frequency bins
-
-        # Reshape input to (batch_size, time_steps, frequency_bins)
+        # Reshape input to (batch_size, time_steps, frequency_bins) and pass into lstm
         x = x.permute(0, 3, 1, 2).reshape(x.size(0), x.size(3), -1)
-
-        # Forward propagate LSTM
         x, (h_n, c_n) = self.lstm(x)
 
-        # You might need to extract just the final hidden state from the last time step
-        # If your LSTM is bidirectional, it concatenates the final forwards (h_n[-2,:,:])
-        # and backwards (h_n[-1,:,:]) hidden states
+        # Concatenation (bidirectional LSTM) and pass through FC layer
         x = torch.cat((h_n[-2, :, :], h_n[-1, :, :]), dim=1)
 
-        # Pass the final state through the fully connected layer
+        # No need for softmax due to loss_fn = cross_entropy_loss
         logits = self.fc(x)
-
         return logits

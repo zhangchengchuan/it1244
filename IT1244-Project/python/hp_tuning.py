@@ -8,7 +8,7 @@ It is a wrapper around main.py and evaluation.py. It runs the entire pipeline fo
 for batch_size in [64]:
     for learning_rate in [0.01, 0.001]:
         for dropout in [0.2, 0.4, 0.6]:
-            for model in ['cnn']:
+            for model in ['base']:
                 # Run the entire pipeline
                 label = f'{model}_lr-{learning_rate}_bs-{batch_size}_do-{dropout}'
                 train_loc = './Dataset/Audio Dataset/Cats and Dogs/data'
