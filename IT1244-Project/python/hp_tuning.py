@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-for batch_size in [128]:
+for batch_size in [64]:
     for learning_rate in [0.01, 0.001]:
             for dropout in [0.2, 0.4, 0.6]:
                 for model in ['cnn']:

@@ -10,6 +10,9 @@ import torch.nn.functional as F
 import torchaudio
 import torchaudio.transforms as T
 
+from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import average_precision_score
+
 # Model
 from models import CNN, MLP, LSTM
 from utils import CatsAndDogsDataset, get_hyperparameters, get_test_dataframe
@@ -68,6 +71,7 @@ def test(args):
     FP = confusion_matrix[0, 1]
     FN = confusion_matrix[1, 0]
 
+    # Precision, Recall
     precision = TP / (TP + FP)
     recall = TP / (TP + FN)
     f1 = 2 * (precision * recall) / (precision + recall)
@@ -78,6 +82,11 @@ def test(args):
     print("F1 Score:", f1.item())
     print("F2 Score:", f2.item())
 
+    # Calculate Average Precision
+    AP = average_precision_score(all_labels, all_preds)
+    print("Average Precision (AP):", AP)
+
+
     # Save the metrics to a file
     with open(os.path.join(model_folder_location,f'{label}.txt'), 'w') as file:
         file.write(f"TP: {TP}\n")
@@ -86,6 +95,7 @@ def test(args):
         file.write(f"FN: {FN}\n")
         file.write(f"F1 Score: {f1.item()}\n")
         file.write(f"F2 Score: {f2.item()}\n")
+        file.write(f"Mean Average Precision (MAP): {AP}\n")
 
             
 if __name__=="__main__":

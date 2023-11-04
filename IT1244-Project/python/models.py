@@ -29,17 +29,16 @@ class MLP(nn.Module):
         )
         self.fc2.apply(init_weights)
 
-        self.fc4 = nn.Sequential(
+        self.fc3 = nn.Sequential(
             nn.Linear(1024, 2),
         )
-        self.fc4.apply(init_weights)
+        self.fc3.apply(init_weights)
 
     def forward(self, x):
         x = self.flatten(x)
         x = self.fc1(x)
         x = self.fc2(x)
-        x = self.fc3(x)
-        logits = self.fc4(x)
+        logits = self.fc3(x)
         return logits
 
 # Baseline CNN
