@@ -26,6 +26,7 @@ torch.manual_seed(0)
 
 # Warning: to mute deprecation notifications
 import warnings
+
 warnings.filterwarnings("ignore", category=UserWarning, module="torch.nn.modules.module", lineno=1518)
 
 
@@ -39,7 +40,7 @@ def train(args):
     # Main folder location to store artifacts
     model_folder_location = args.folder_location
     hp = get_hyperparameters(args)
-    
+
     # Create dataloader class
     train_dataframe = get_train_dataframe(args.train_data)
     train_dataset = CatsAndDogsDataset(dataframe=train_dataframe)
@@ -50,7 +51,7 @@ def train(args):
         model = CNN(dropout=hp['dropout']).to(device)
     elif args.type == 'base':
         model = MLP(dropout=hp['dropout']).to(device)
-    elif args.type=='lstm':
+    elif args.type == 'lstm':
         model = LSTM(dropout=hp['dropout']).to(device)
     else:
         raise Exception(f"No such model type found: {args.type}")
@@ -78,7 +79,7 @@ def train(args):
         val_losses = []
         # For each epoch, train and validate
         for epoch in range(EPOCHS):
-            cur_training_loss=0
+            cur_training_loss = 0
             model.train()
             for feature, labels in train_loader:
                 feature, labels = feature.to(device), labels.to(device)
@@ -88,11 +89,11 @@ def train(args):
                 loss.backward()
                 optimizer.step()
                 cur_training_loss += loss.item()
-            epoch_training_loss = cur_training_loss/len(train_loader)
+            epoch_training_loss = cur_training_loss / len(train_loader)
             print(f"Epoch Loss: {epoch_training_loss}")
             train_losses.append(epoch_training_loss)
 
-            cur_validation_loss=0
+            cur_validation_loss = 0
             model.eval()
             with torch.no_grad():
                 for feature, labels in validation_loader:
@@ -100,24 +101,23 @@ def train(args):
                     output = model(feature)
                     loss = loss_fn(output, labels)
                     cur_validation_loss += loss.item()
-                epoch_validation_loss = cur_validation_loss/len(validation_loader)
+                epoch_validation_loss = cur_validation_loss / len(validation_loader)
                 val_losses.append(epoch_validation_loss)
                 # print(f"Epoch Validation Loss: {epoch_training_loss}")
         all_losses.append((train_losses, val_losses))
 
-
     # Save the plots
-    fig, axs = plt.subplots(KFOLD_SPLITS, 1, figsize=(6,3*KFOLD_SPLITS)) # number of splits = number of plots
+    fig, axs = plt.subplots(KFOLD_SPLITS, 1, figsize=(6, 3 * KFOLD_SPLITS))  # number of splits = number of plots
     for idx, losses in enumerate(all_losses):
         train_loss, val_loss = losses
         axs[idx].plot(np.arange(EPOCHS), train_loss, label="Training Loss")
         axs[idx].plot(np.arange(EPOCHS), val_loss, label="Validation Loss")
-        axs[idx].set_title(f'Training and Validation Loss over {EPOCHS} epochs for fold {idx+1}')
+        axs[idx].set_title(f'Training and Validation Loss over {EPOCHS} epochs for fold {idx + 1}')
         axs[idx].set_xlabel('Epochs')
         axs[idx].set_ylabel('Loss')
         axs[idx].legend()
     plt.tight_layout()
-    
+
     # Check if folders exists. if not create.
     if not os.path.exists(model_folder_location):
         os.makedirs(model_folder_location)
@@ -135,16 +135,19 @@ def train(args):
             for item in all_losses[idx]:
                 file.write(f"{item}\n")
 
-    print(f"Training Concluded. Time taken: {time.time()-start}")
-    
+    print(f"Training Concluded. Time taken: {time.time() - start}")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Description of your script')
-    parser.add_argument('-t','--type', type=str, help='Type of model', default='base')
-    parser.add_argument('-d','--train_data', type=str, help='Location of training data', default='./Dataset/Audio Dataset/Cats and Dogs/data')
-    parser.add_argument('-l', '--folder_location', type=str, help='Location of folder for storing logs, plots, models and hyperparameters', default='./models/')
-    parser.add_argument('-lr','--learning_rate', type=str, default='0.01')
-    parser.add_argument('-bs','--batch_size', type=str, default='128')
-    parser.add_argument('-do','--dropout', type=str, default='0.4')
+    parser.add_argument('-t', '--type', type=str, help='Type of model', default='base')
+    parser.add_argument('-d', '--train_data', type=str, help='Location of training data',
+                        default='./Dataset/Audio Dataset/Cats and Dogs/data')
+    parser.add_argument('-l', '--folder_location', type=str,
+                        help='Location of folder for storing logs, plots, models and hyperparameters',
+                        default='./models/')
+    parser.add_argument('-lr', '--learning_rate', type=str, default='0.01')
+    parser.add_argument('-bs', '--batch_size', type=str, default='128')
+    parser.add_argument('-do', '--dropout', type=str, default='0.4')
     args = parser.parse_args()
     train(args)
-    
