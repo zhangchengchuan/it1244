@@ -5,10 +5,10 @@ import subprocess
 This script is used to run the entire pipeline for hyperparameter tuning.
 It is a wrapper around main.py and evaluation.py. It runs the entire pipeline for each combination of hyperparameters.
 """
-for batch_size in [64]:
+for batch_size in [64, 128]:
     for learning_rate in [0.01, 0.001]:
         for dropout in [0.2, 0.4, 0.6]:
-            for model in ['base']:
+            for model in ['cnn','base','lstm']:
                 # Run the entire pipeline
                 label = f'{model}_lr-{learning_rate}_bs-{batch_size}_do-{dropout}'
                 train_loc = './Dataset/Audio Dataset/Cats and Dogs/data'
