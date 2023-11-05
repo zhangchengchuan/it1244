@@ -57,9 +57,9 @@ class CNN(nn.Module):
         more stable and less likely to get stuck in a local minima. Max pooling helps to reduce the dimensionality of
         the input, which helps to reduce the number of parameters in the model. This helps to reduce the training time.
         
-        Most importantly, it makes the CNN more robust to small changes in the input. For example, if we have a picture
-        of a cat, we can still recognize it as a cat even if the cat is not in the center of the picture, or is rotated 
-        in another direction. This is because max pooling helps to reduce the dimensionality of the input, which makes 
+        Most importantly, it makes the CNN more robust to small changes in the input, for example difference in
+        amplitude or frequency of the cat and dog sounds. 
+        This is because max pooling helps to reduce the dimensionality of the input, which makes 
         the CNN more robust to small changes in the input.
         """
         self.conv1 = nn.Sequential(
@@ -138,8 +138,8 @@ class LSTM(nn.Module):
     """
     LSTM is a type of recurrent neural network (RNN). RNNs are used for sequential
     data, such as time series data. In our case, we use it for audio data. The input to the LSTM is a sequence of audio
-    frames from the spectrogram (flattened). The output is a sequence of hidden states. The hidden states are then passed to a fully connected layer to
-    produce the final output.
+    frames from the spectrogram (flattened). The output is a sequence of hidden states. The hidden states are then
+    passed to a fully connected layer to produce the final output.
 
     What is good about this model is that it is better than traditional RNNs at capturing long-term dependencies.
     Traditional RNNs have difficulty learning long-term dependencies in sequential data. This is because the
@@ -153,7 +153,7 @@ class LSTM(nn.Module):
         self.flatten1 = nn.Flatten()
         self.lstm = nn.LSTM(
             input_size=1025,
-            hidden_size=256, # number of hidden states
+            hidden_size=256,  # number of hidden states
             batch_first=True,
             num_layers=2,
             dropout=dropout,

@@ -15,3 +15,10 @@ venv/
 # IT1244-Project/Dataset/
 
 models/
+
+# Virtual Environment
+it1244proj/
+
+# zip files
+zip file containing only the txt and png.zip
+models.zip
